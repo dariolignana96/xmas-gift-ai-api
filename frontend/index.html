@@ -1,0 +1,563 @@
+﻿<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎄 Xmas Gift AI Suggester</title>
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --gradient-xmas: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-snow: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            --green-xmas: #10b981;
+            --red-xmas: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: radial-gradient(circle at 20% 50%, rgba(120,119,198,0.3) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(255,119,198,0.3) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 80%, rgba(120,219,255,0.3) 0%, transparent 50%),
+                        #0a0a23;
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .header h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            background: var(--gradient-xmas);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .backend-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            font-size: 0.9rem;
+            margin: 20px auto;
+            animation: pulse 2s infinite;
+        }
+
+        .status-ok { border-color: var(--green-xmas); color: var(--green-xmas); }
+        .status-error { border-color: var(--red-xmas); color: var(--red-xmas); }
+
+        .form-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow);
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            opacity: 0.95;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--green-xmas);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Rimuove le frecce native dagli input numerici */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        /* Wrapper e bottoni + / - custom */
+        .number-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .number-input-wrapper input[type="number"] {
+            flex: 1;
+        }
+
+        .number-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.35), transparent),
+                        linear-gradient(135deg, #16a34a, #14532d);
+            color: #f9fafb;
+            font-size: 1.4rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(22, 163, 74, 0.4);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+        }
+
+        .number-btn-minus {
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.35), transparent),
+                        linear-gradient(135deg, #b91c1c, #7f1d1d);
+            box-shadow: 0 8px 20px rgba(185, 28, 28, 0.4);
+        }
+
+        .number-btn:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.05);
+        }
+
+        .number-btn:active {
+            transform: translateY(1px) scale(0.97);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-generate {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--green-xmas), #059669);
+            border: none;
+            border-radius: 20px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-generate:hover:not(:disabled) {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-generate:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+            margin-top: 20px;
+        }
+
+        .deal-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideInUp 0.6s ease-out forwards;
+        }
+
+        .deal-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .deal-image {
+            width: 100%;
+            height: 200px;
+            background: var(--gradient-snow);
+            border-radius: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            opacity: 0.8;
+        }
+
+        .deal-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .deal-category {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(102, 126, 234, 0.2);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        .deal-price {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--green-xmas);
+            margin-bottom: 4px;
+        }
+
+        .deal-original {
+            text-decoration: line-through;
+            opacity: 0.7;
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
+        .deal-discount {
+            display: inline-flex;
+            align-items: center;
+            background: var(--red-xmas);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top: 4px solid var(--green-xmas);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 15px; }
+            .form-container { padding: 24px; }
+            .results-grid { grid-template-columns: 1fr; }
+        }
+
+        .error-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--red-xmas);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .error-toast.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🎄 Xmas Gift AI Suggester</h1>
+            <p class="subtitle">
+                Demo full-stack personale: FastAPI backend + frontend vanilla HTML/CSS/JS.<br>
+                Inserisci descrizione destinatario e budget per suggerimenti regalo personalizzati.
+            </p>
+            <div id="backendStatus" class="backend-status status-error">
+                🔄 Verificando backend...
+            </div>
+        </header>
+
+        <section class="form-container">
+            <form id="giftForm">
+                <div class="form-group">
+                    <label for="recipient">📝 Descrizione destinatario (es: "bambino 8 anni ama dinosauri")</label>
+                    <textarea id="recipient" required placeholder="Chi è il destinatario? Età, interessi, hobby..."></textarea>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label for="budgetMin">💰 Budget minimo (€)</label>
+                        <input type="number" id="budgetMin" min="0" max="5000" step="0.01" value="20">
+                    </div>
+                    <div class="form-group">
+                        <label for="budgetMax">💰 Budget massimo (€)</label>
+                        <input type="number" id="budgetMax" min="0" max="10000" step="0.01" value="150">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="maxResults">🎯 Max suggerimenti</label>
+                    <div class="number-input-wrapper">
+                        <button type="button" class="number-btn number-btn-minus" id="btnMaxResultsMinus">−</button>
+                        <input type="number" id="maxResults" min="1" max="25" value="5">
+                        <button type="button" class="number-btn number-btn-plus" id="btnMaxResultsPlus">+</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-generate" id="generateBtn">
+                    🎁 Genera Suggerimenti AI
+                </button>
+            </form>
+        </section>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>🎄 L'AI sta analizzando i tuoi criteri...</p>
+        </div>
+
+        <section id="results" style="display: none;">
+            <p id="noResultsMessage" style="display:none; opacity:0.8; margin-bottom:16px;">
+                Nessun prodotto rilevante trovato per questi criteri. Prova a modificare descrizione o budget.
+            </p>
+            <div class="results-grid" id="resultsGrid"></div>
+        </section>
+    </div>
+
+    <div id="errorToast" class="error-toast"></div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        let backendHealthy = false;
+
+        // Test backend on load
+        async function testAPI() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('backendStatus').innerHTML =
+                        `✅ Backend FastAPI attivo (${data.ai_backend})`;
+                    document.getElementById('backendStatus').className = 'backend-status status-ok';
+                    backendHealthy = true;
+                }
+            } catch (error) {
+                document.getElementById('backendStatus').innerHTML =
+                    `❌ Backend non raggiungibile (avvia: uvicorn app.main:app --reload)`;
+                backendHealthy = false;
+            }
+        }
+
+        // Show error toast
+        function showError(message) {
+            const toast = document.getElementById('errorToast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 4000);
+        }
+
+        // Gestione pulsanti + / - per maxResults
+        function clampMaxResults(value) {
+            const min = 1;
+            const max = 25;
+            if (isNaN(value)) return 5;
+            return Math.min(max, Math.max(min, value));
+        }
+
+        const maxResultsInput = document.getElementById('maxResults');
+        const btnMaxMinus = document.getElementById('btnMaxResultsMinus');
+        const btnMaxPlus = document.getElementById('btnMaxResultsPlus');
+
+        btnMaxMinus.addEventListener('click', () => {
+            const current = clampMaxResults(parseInt(maxResultsInput.value, 10));
+            maxResultsInput.value = clampMaxResults(current - 1);
+        });
+
+        btnMaxPlus.addEventListener('click', () => {
+            const current = clampMaxResults(parseInt(maxResultsInput.value, 10));
+            maxResultsInput.value = clampMaxResults(current + 1);
+        });
+
+        maxResultsInput.addEventListener('change', () => {
+            maxResultsInput.value = clampMaxResults(parseInt(maxResultsInput.value, 10));
+        });
+
+        // Generate suggestions
+        document.getElementById('giftForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!backendHealthy) {
+                showError('Backend non attivo! Avvia: uvicorn app.main:app --reload');
+                return;
+            }
+
+            const formData = {
+                recipient_description: document.getElementById('recipient').value,
+                budget_min: parseFloat(document.getElementById('budgetMin').value),
+                budget_max: parseFloat(document.getElementById('budgetMax').value),
+                max_results: parseInt(document.getElementById('maxResults').value)
+            };
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('generateBtn').disabled = true;
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('generateBtn').textContent = '⏳ Generando...';
+
+            try {
+                const response = await fetch(`${API_BASE}/deals/ai-suggest`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Errore API');
+                }
+
+                const data = await response.json();
+                displayResults(data);
+            } catch (error) {
+                showError(`Errore: ${error.message}`);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('generateBtn').disabled = false;
+                document.getElementById('generateBtn').textContent = '🎁 Genera Suggerimenti AI';
+            }
+        });
+
+        function displayResults(data) {
+            const grid = document.getElementById('resultsGrid');
+            const noResultsMessage = document.getElementById('noResultsMessage');
+
+            grid.innerHTML = '';
+
+            if (!data.suggested_deals || data.suggested_deals.length === 0) {
+                noResultsMessage.style.display = 'block';
+                document.getElementById('results').style.display = 'block';
+                return;
+            }
+
+            noResultsMessage.style.display = 'none';
+
+            data.suggested_deals.forEach((deal, index) => {
+                const card = document.createElement('div');
+                card.className = 'deal-card';
+                card.style.animationDelay = `${index * 0.1}s`;
+
+                card.innerHTML = `
+                    <div class="deal-image">🛍️</div>
+                    <div class="deal-category">${deal.category.toUpperCase()}</div>
+                    <h3 class="deal-title">${deal.title}</h3>
+                    <p style="opacity: 0.8; margin-bottom: 16px; line-height: 1.5;">${deal.description}</p>
+                    <div class="deal-price">€${deal.price.toFixed(2)}</div>
+                    <div class="deal-original">€${deal.original_price.toFixed(2)}</div>
+                    <div class="deal-discount">-${deal.discount}%</div>
+                `;
+
+                card.style.cursor = 'pointer';
+                card.addEventListener('click', () => {
+                    window.open(deal.url, '_blank');
+                    card.style.transform = 'scale(0.98)';
+                    setTimeout(() => {
+                        card.style.transform = '';
+                    }, 150);
+                });
+
+                grid.appendChild(card);
+            });
+
+            document.getElementById('results').style.display = 'block';
+        }
+
+        // Init
+        testAPI();
+    </script>
+</body>
+</html>
