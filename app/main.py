@@ -9,7 +9,6 @@ app = FastAPI(
     description="API REST per suggerimenti regalo personalizzati con mock AI backend"
 )
 
-# CORS per frontend localhost:5500
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://127.0.0.1:5500", "http://localhost:5500", "*"],
@@ -20,26 +19,14 @@ app.add_middleware(
 
 @app.get("/health", response_model=HealthResponse)
 def health_check():
-    return HealthResponse(
-        status="healthy",
-        version="1.0.0",
-        ai_backend="mock AI ranking",
-    )
+    return HealthResponse(status="healthy", version="1.0.0", ai_backend="mock AI ranking")
 
 @app.get("/")
 def root():
-    return {
-        "message": "🎄 Xmas Gift AI API - 100% Open Source",
-        "version": "1.0.0",
-        "docs": "/docs",
-        "openapi": "/openapi.json",
-    }
+    return {"message": "🎄 Xmas Gift AI API", "docs": "/docs"}
 
 @app.get("/deals", response_model=list[Deal])
-def get_deals(
-    skip: int = Query(0, ge=0),
-    limit: int = Query(10, ge=1, le=100),
-):
+def get_deals(skip: int = Query(0, ge=0), limit: int = Query(10, ge=1, le=100)):
     deals = get_all_deals()
     return deals[skip : skip + limit]
 
@@ -59,34 +46,33 @@ def search(q: str = Query(..., min_length=1)):
 
 @app.post("/deals/ai-suggest", response_model=AISuggestionResponse)
 def ai_suggest(request: AISuggestionRequest):
-    # Validazioni
     if request.max_results < 1 or request.max_results > 25:
         raise HTTPException(status_code=400, detail="max_results 1-25")
     if request.budget_min > request.budget_max:
         raise HTTPException(status_code=400, detail="budget_min > budget_max")
 
-    # 1. Filtra budget
     all_deals = get_all_deals()
-    budget_filtered = [d for d in all_deals if request.budget_min <= d.price <= request.budget_max]
+    budget_filtered = [d for d in all_deals if request.budget_min <= float(d.price) <= request.budget_max]
 
-    # 2. Keyword matching
     recipient_lower = request.recipient_description.lower()
     keyword_map = {
-        "dinosauri": {"toys": 10}, "gioco": {"toys": 9}, "bambino": {"toys": 9},
+        "dinosauri": {"toys": 10}, "gioco": {"toys": 9}, "bambino": {"toys": 9}, "giocattolo": {"toys": 10},
+        "puzzle": {"toys": 9}, "costruzioni": {"toys": 10}, "robot": {"toys": 9},
         "gaming": {"electronics": 10}, "tech": {"electronics": 10}, "cuffie": {"electronics": 10},
+        "computer": {"electronics": 9}, "smartwatch": {"electronics": 9},
         "moda": {"fashion": 10}, "scarpe": {"fashion": 10}, "sneakers": {"fashion": 10},
+        "giacca": {"fashion": 10}, "zaino": {"fashion": 9},
         "crema": {"beauty": 10}, "skincare": {"beauty": 10}, "makeup": {"beauty": 10},
+        "trucco": {"beauty": 10}, "viso": {"beauty": 9},
         "casa": {"home": 10}, "lampada": {"home": 8}, "robot": {"home": 9},
     }
 
-    # 3. Scoring
     scored_deals = []
     for deal in budget_filtered:
         score = 0
         for keyword, cats in keyword_map.items():
             if keyword in recipient_lower and deal.category.value in cats:
                 score += cats[deal.category.value]
-        # Bonus parole dirette
         deal_text = (deal.title + " " + deal.description).lower()
         for word in recipient_lower.split():
             if len(word) > 3 and word in deal_text:
@@ -94,7 +80,6 @@ def ai_suggest(request: AISuggestionRequest):
         if score > 0:
             scored_deals.append((deal, score))
 
-    # 4. Top risultati
     scored_deals.sort(key=lambda x: x[1], reverse=True)
     suggested = [deal for deal, _ in scored_deals[:request.max_results]]
 

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿    ﻿<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -411,12 +411,10 @@
     </div>
 
     <div id="errorToast" class="error-toast"></div>
-
     <script>
-        const API_BASE = 'http://localhost:8000';
+        const API_BASE = 'http://127.0.0.1:8000';
         let backendHealthy = false;
 
-        // Test backend on load
         async function testAPI() {
             try {
                 const response = await fetch(`${API_BASE}/health`);
@@ -434,7 +432,6 @@
             }
         }
 
-        // Show error toast
         function showError(message) {
             const toast = document.getElementById('errorToast');
             toast.textContent = message;
@@ -442,10 +439,8 @@
             setTimeout(() => toast.classList.remove('show'), 4000);
         }
 
-        // Gestione pulsanti + / - per maxResults
         function clampMaxResults(value) {
-            const min = 1;
-            const max = 25;
+            const min = 1, max = 25;
             if (isNaN(value)) return 5;
             return Math.min(max, Math.max(min, value));
         }
@@ -468,7 +463,6 @@
             maxResultsInput.value = clampMaxResults(parseInt(maxResultsInput.value, 10));
         });
 
-        // Generate suggestions
         document.getElementById('giftForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -544,10 +538,6 @@
                 card.style.cursor = 'pointer';
                 card.addEventListener('click', () => {
                     window.open(deal.url, '_blank');
-                    card.style.transform = 'scale(0.98)';
-                    setTimeout(() => {
-                        card.style.transform = '';
-                    }, 150);
                 });
 
                 grid.appendChild(card);
@@ -556,8 +546,5 @@
             document.getElementById('results').style.display = 'block';
         }
 
-        // Init
         testAPI();
     </script>
-</body>
-</html>

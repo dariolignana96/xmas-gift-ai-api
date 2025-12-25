@@ -12,7 +12,6 @@ class DealCategory(str, Enum):
 
 class Deal(BaseModel):
     model_config = {"json_encoders": {Decimal: float}}
-    
     id: int = Field(..., gt=0)
     title: str = Field(..., min_length=1, max_length=100)
     description: str = Field(..., min_length=10, max_length=500)
@@ -20,11 +19,10 @@ class Deal(BaseModel):
     original_price: Decimal = Field(..., gt=0, le=10000)
     discount: int = Field(..., ge=0, le=100)
     category: DealCategory
-    image_url: str = Field(..., min_length=1)
+    image_url: str = Field(default="")
     url: str = Field(..., min_length=1)
 
 class AISuggestionRequest(BaseModel):
-    model_config = {"json_encoders": {Decimal: float}}
     recipient_description: str = Field(..., min_length=5, max_length=500)
     budget_min: float = Field(0, gt=-1, le=5000)
     budget_max: float = Field(1000, gt=0, le=10000)
