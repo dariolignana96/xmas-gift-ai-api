@@ -172,4 +172,3 @@ Questi file sono pensati per mostrare familiarità con concetti base Kubernetes 
 
 Il codice del progetto è originale, pensato per essere utilizzato liberamente in contesti **open‑source** e didattici.  
 Puoi clonarlo, modificarlo e adattarlo per i tuoi esperimenti o per mostrarlo in colloquio.
-```
