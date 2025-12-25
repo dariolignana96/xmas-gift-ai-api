@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: xmas-gift-api
+  labels:
+    app: xmas-gift-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: xmas-gift-api
+  template:
+    metadata:
+      labels:
+        app: xmas-gift-api
+    spec:
+      containers:
+        - name: api
+          image: xmas-gift-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
