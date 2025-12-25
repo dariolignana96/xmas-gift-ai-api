@@ -1,11 +1,10 @@
-
 # 🎄 Xmas Gift AI Suggester
 
 Progetto full‑stack personale: **API FastAPI + frontend HTML/CSS/JS vanilla** per generare suggerimenti regalo in base a descrizione del destinatario e budget.  
 
 Tutto gira **in locale**, usa solo **mock data inventati** e una logica “AI” basata su keyword e punteggi, senza servizi esterni a pagamento.
 
----
+***
 
 ## ✨ Caratteristiche principali
 
@@ -26,7 +25,7 @@ Tutto gira **in locale**, usa solo **mock data inventati** e una logica “AI”
     - parole presenti anche nel titolo/descrizione del prodotto
   - Vengono mostrati solo i prodotti con `score > 0`, ordinati per pertinenza
 
----
+***
 
 ## 🛠 Stack Tecnologico
 
@@ -36,10 +35,11 @@ Tutto gira **in locale**, usa solo **mock data inventati** e una logica “AI”
 - **Container:** Docker (Dockerfile per backend)
 - **Orchestrazione locale:** Docker Compose
 - **Orchestrazione cloud-ready:** Kubernetes (Deployment + Service)
+- **Infrastructure as Code:** Terraform (design VPC AWS)
 - **Testing (future ready):** pytest, pytest‑asyncio, httpx
 - **Extra librerie disponibili:** requests, beautifulsoup4, python‑dotenv, ollama (per eventuali evoluzioni)
 
----
+***
 
 ## 📂 Struttura del progetto
 
@@ -52,6 +52,12 @@ xmas-gift-ai-api/
 │   └── mock_data.py      # Dataset mock con prodotti inventati e helper
 ├── frontend/
 │   └── index.html        # Single page app con HTML/CSS/JS
+├── infra/                # 🆕 Infrastructure as Code (Terraform)
+│   ├── main.tf           # VPC + provider AWS
+│   ├── variables.tf      # Parametri configurabili
+│   ├── outputs.tf        # Output (VPC ID, ARN)
+│   └── envs/
+│       └── dev.tfvars    # Configurazione ambiente dev
 ├── k8s/
 │   ├── deployment.yaml   # Deployment Kubernetes per il backend
 │   └── service.yaml      # Service Kubernetes per esporre l'API nel cluster
@@ -63,7 +69,7 @@ xmas-gift-ai-api/
 └── README.md             # Questo file
 ```
 
----
+***
 
 ## 🚀 Come eseguirlo in locale
 
@@ -116,7 +122,7 @@ python -m http.server 5500
 
 Poi apri `http://127.0.0.1:5500/index.html`.
 
----
+***
 
 ### 🔹 Esecuzione con Docker (opzionale)
 
@@ -127,6 +133,33 @@ docker compose up --build
 ```
 
 L'API sarà raggiungibile su `http://localhost:8000` (documentazione automatica su `/docs`).
+
+***
+
+## 🏗️ Infrastructure as Code (Terraform)
+
+La cartella `infra/` contiene un **design di infrastruttura AWS** per la Xmas Gift API:
+
+```
+infra/
+├── main.tf          # VPC + provider AWS configurabile
+├── variables.tf     # Parametri (project_name, environment, aws_region, vpc_cidr)
+├── outputs.tf       # Output (VPC ID, ARN)
+└── envs/
+    └── dev.tfvars   # Configurazione ambiente dev (eu-west-1)
+```
+
+**Solo design/studio** - nessun `terraform apply` eseguito, **zero costi**.
+
+```bash
+cd infra
+terraform init      # ✅ Sicuro - inizializza provider
+terraform fmt       # ✅ Sicuro - formatta codice
+terraform validate  # ✅ Sicuro - verifica sintassi
+# terraform apply  # ❌ NON eseguire senza analisi costi
+```
+
+> **Nota:** Configurazione pensata per mostrare competenze IaC. Chi clona può validarla localmente senza creare risorse.
 
 ---
 
@@ -142,7 +175,7 @@ L'API sarà raggiungibile su `http://localhost:8000` (documentazione automatica 
 
 Se nessun prodotto è rilevante, il backend restituisce una lista vuota e il frontend mostra un messaggio “Nessun prodotto rilevante trovato per questi criteri”.
 
----
+***
 
 ## ☁️ Cloud / Kubernetes (ready)
 
@@ -153,7 +186,7 @@ Il progetto include manifest Kubernetes in `k8s/` per eseguire il backend in un 
 
 Questi file sono pensati per mostrare familiarità con concetti base Kubernetes (Deployment, Service, label/selector) e possono essere adattati a qualsiasi cluster (minikube, kind, cloud).
 
----
+***
 
 ## 🤝 Note per recruiter / reviewer
 
@@ -164,11 +197,14 @@ Questi file sono pensati per mostrare familiarità con concetti base Kubernetes 
   - gestione errori e UX (loading, toast, stato backend)
   - logica “AI” spiegabile e modificabile facilmente (keyword e score)
   - containerizzazione (Docker), orchestrazione locale (Docker Compose) e manifest Kubernetes di base
-- Nessuno scraping reale o collegamento a servizi esterni viene eseguito di default: l’app funziona completamente in locale.
+  - **Infrastructure as Code** (Terraform VPC design, validato localmente)
+- Nessuno scraping reale o collegamento a servizi esterni viene eseguito di default: l'app funziona completamente in locale.
 
----
+***
 
 ## 📜 Licenza e uso
 
 Il codice del progetto è originale, pensato per essere utilizzato liberamente in contesti **open‑source** e didattici.  
 Puoi clonarlo, modificarlo e adattarlo per i tuoi esperimenti o per mostrarlo in colloquio.
+
+***
